@@ -10,8 +10,10 @@ var MongoClient = require('mongodb').MongoClient
 var mongoUrl = process.env["MONGOHQ_URL"] || "mongodb://localhost/leuat"
 var leuat
 
+console.log("Connecting to mongo", mongoUrl)
 MongoClient.connect(mongoUrl, function(err, conn) {
   if (err) {
+    console.log("Failed to connect to mongo", err)
     throw err
   }
   leuat = conn.collection("leuat")
