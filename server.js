@@ -7,7 +7,7 @@ var io = require('socket.io')(http)
 var Bacon = require("baconjs")
 var _ = require("lodash")
 var MongoClient = require('mongodb').MongoClient
-var mongoUrl = process.env["MONGOHQ_URL"] || "mongodb://localhost/leuat"
+var mongoUrl = process.env["MONGOLAB_URI"] || "mongodb://localhost/leuat"
 var leuat
 
 console.log("Connecting to mongo", mongoUrl)
