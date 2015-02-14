@@ -1,0 +1,4 @@
+body { font-family: Comic Sans Ms, Futura, Arial; }
+ul { padding: 0; }
+li { list-style: none; }
+li .team { display: inline-block; width: 5em; }
