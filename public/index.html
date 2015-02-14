@@ -1,0 +1,34 @@
+<html>
+<body>
+<h1>LEUAT</h1>
+<form method="post" action="/leuka">
+  <input name="team" id="team" placeholder="Team name">
+  <button id="leuka">LEUKA</button>
+</form>
+<ul id="leuat"></ul>
+<script src="/socket.io/socket.io.js"></script>
+<script src="Bacon.js"></script>
+<script src="jquery.js"></script>
+<script>
+console.log("Veä jo!")
+function teamName() { return team.value }
+var socket = io()
+Bacon.fromEvent(document.querySelector("#leuka"), "click")
+  .doAction(".preventDefault")
+  .filter(teamName)
+  .onValue(function() {
+    socket.emit("leuka", { team: teamName(), leukoja: 1 })
+  })
+socket.emit("leuat")
+Bacon.fromEvent(socket, "leuat")
+  .onValue(function(list) {
+    var $list = list.map(function(leuka) {
+      return $("<li>")
+        .append($("<span>").addClass("team").text(leuka._id))
+        .append($("<span>").addClass("leukoja").text(leuka.leukoja))
+    })
+    $("#leuat").html($list)
+  })
+</script>
+</body>
+</html>
