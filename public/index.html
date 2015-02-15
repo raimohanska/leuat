@@ -8,12 +8,19 @@
   <input name="vetaja" id="vetaja" placeholder="VETÄJÄN NIMI">
   <button id="leuka">LEUKA</button>
 </form>
+<div id="iso"></div>
 <ul id="leuat"></ul>
 <script src="/socket.io/socket.io.js"></script>
 <script src="Bacon.js"></script>
 <script src="jquery.js"></script>
 <script src="jquery.cookie.js"></script>
 <script>
+Bacon.Observable.prototype.assignField = function(obj, f) {
+  this.onValue(function(value) {
+    obj[f]=value
+  })
+}
+
 console.log("Veä jo!")
 function fieldValue(field) {
   function getValue() { return field.value }
@@ -32,21 +39,52 @@ storeCookie(vetaja)
 
 var teamP = fieldValue(team)
 var vetajaP = fieldValue(vetaja)
-var validP = teamP
-var dataP = Bacon.combineTemplate({ team: teamP, vetaja: vetajaP, leukoja: 1 })
 var socket = io()
 
-validP.not().onValue(function(disabled) { leuka.disabled = disabled })
-
-Bacon.fromEvent(document.querySelector("#leuka"), "click")
+var leukaE = Bacon.fromEvent(document.querySelector("#leuka"), "click")
   .doAction(".preventDefault")
-  .filter(validP)
+
+var flushE = leukaE.debounce(2000)
+
+var countP = Bacon.update(0,
+  [leukaE], function(count) { return count+1 },
+  [flushE], function(count) { return 0 }
+  )
+  
+var suoritetutLeuatE = countP.slidingWindow(2,2).sampledBy(flushE).map(".0")
+
+var dataP = Bacon.combineTemplate({ team: teamP, vetaja: vetajaP, leukoja: suoritetutLeuatE })
+
+flushE
   .map(dataP)
   .onValue(function(data) {
+    console.log(data)
     socket.emit("leuka", data)
   })
-socket.emit("leuat")
-Bacon.fromEvent(socket, "leuat")
+  
+var leuatE = Bacon.fromEvent(socket, "leuat")
+
+waitingP = flushE.awaiting(leuatE)
+
+var validP = teamP.and(waitingP.not())
+
+validP.not().assignField(leuka, "disabled")
+
+countP
+  .filter(Bacon._.id)
+  .assignField(iso, "textContent")
+
+suoritetutLeuatE
+  .doAction(function() {
+    iso.classList.add("pow")
+  })
+  .delay(1000)
+  .onValue(function() {
+    iso.classList.remove("pow")
+    iso.textContent = ""
+  })
+
+leuatE
   .onValue(function(list) {
     var $list = list.map(function(leuka) {
       return $("<li>")
@@ -55,6 +93,8 @@ Bacon.fromEvent(socket, "leuat")
     })
     $("#leuat").html($list)
   })
+  
+socket.emit("leuat") // request initial status
 </script>
 </body>
 </html>
