@@ -29,7 +29,7 @@ io.on('connection', function(socket){
   console.log('User connected')
   socket.on("leuka", function(msg) {
     console.log("LEUKA, MAIJAI!", msg.team)
-    leuat.insert({team: msg.team, leukoja: msg.leukoja})
+    leuat.insert({team: msg.team, leukoja: msg.leukoja, vetaja: msg.vetaja, date: new Date()})
     sendSummary()
   })
   socket.on("leuat", sendSummary)

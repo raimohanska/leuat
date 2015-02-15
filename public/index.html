@@ -5,6 +5,7 @@
 <h1>LEUAT</h1>
 <form method="post" action="/leuka">
   <input name="team" id="team" placeholder="LEUKA TIIMI NIMI">
+  <input name="vetaja" id="vetaja" placeholder="VETÄJÄN NIMI">
   <button id="leuka">LEUKA</button>
 </form>
 <ul id="leuat"></ul>
@@ -14,17 +15,35 @@
 <script src="jquery.cookie.js"></script>
 <script>
 console.log("Veä jo!")
-team.value = $.cookie("team") || ""
-team.addEventListener("input", function() {
-  $.cookie("team", teamName())
-})
-function teamName() { return team.value }
+function fieldValue(field) {
+  function getValue() { return field.value }
+  return Bacon.fromEvent(field, "input")
+    .map(getValue)
+    .toProperty(getValue())
+}
+function storeCookie(field) {
+  field.value = $.cookie(field.id) || ""
+  fieldValue(field).onValue(function(value) {
+    $.cookie(field.id, value)
+  })
+}
+storeCookie(team)
+storeCookie(vetaja)
+
+var teamP = fieldValue(team)
+var vetajaP = fieldValue(vetaja)
+var validP = teamP
+var dataP = Bacon.combineTemplate({ team: teamP, vetaja: vetajaP, leukoja: 1 })
 var socket = io()
+
+validP.not().onValue(function(disabled) { leuka.disabled = disabled })
+
 Bacon.fromEvent(document.querySelector("#leuka"), "click")
   .doAction(".preventDefault")
-  .filter(teamName)
-  .onValue(function() {
-    socket.emit("leuka", { team: teamName(), leukoja: 1 })
+  .filter(validP)
+  .map(dataP)
+  .onValue(function(data) {
+    socket.emit("leuka", data)
   })
 socket.emit("leuat")
 Bacon.fromEvent(socket, "leuat")
