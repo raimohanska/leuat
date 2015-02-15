@@ -11,8 +11,13 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="Bacon.js"></script>
 <script src="jquery.js"></script>
+<script src="jquery.cookie.js"></script>
 <script>
 console.log("Veä jo!")
+team.value = $.cookie("team") || ""
+team.addEventListener("input", function() {
+  $.cookie("team", teamName())
+})
 function teamName() { return team.value }
 var socket = io()
 Bacon.fromEvent(document.querySelector("#leuka"), "click")
