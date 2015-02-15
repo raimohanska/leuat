@@ -9,6 +9,7 @@ var _ = require("lodash")
 var MongoClient = require('mongodb').MongoClient
 var mongoUrl = process.env["MONGOLAB_URI"] || "mongodb://localhost/leuat"
 var leuat
+var leuatBus = new Bacon.Bus()
 
 console.log("Connecting to mongo", mongoUrl)
 MongoClient.connect(mongoUrl, function(err, conn) {
@@ -19,7 +20,7 @@ MongoClient.connect(mongoUrl, function(err, conn) {
   leuat = conn.collection("leuat")
 })
 
-function summary(callback) {
+function summary() {
   return Bacon.fromNodeCallback(
     leuat, "aggregate", [{$group: { _id:"$team", leukoja: { $sum: "$leukoja" }  }}]
   ).map(function(list) {
@@ -29,16 +30,20 @@ function summary(callback) {
   })
 }
 
+var statusUpdateE = leuatBus.flatMap(summary)
+
 io.on('connection', function(socket){
+  var discoE = Bacon.fromEvent(socket, "disconnect")
   console.log('User connected')
   socket.on("leuka", function(msg) {
     console.log("LEUKA, MAIJAI!", msg.team)
     leuat.insert({team: msg.team, leukoja: msg.leukoja, vetaja: msg.vetaja, date: new Date()})
-    sendSummary()
+    leuatBus.push()
   })
-  socket.on("leuat", sendSummary)
-  function sendSummary() {
-    summary().onValue(socket, "emit", "leuat")
+  Bacon.fromEvent(socket, "leuat").flatMap(summary).onValue(send)
+  statusUpdateE.takeUntil(discoE).onValue(send)
+  function send(data) {
+    socket.emit("leuat", data)
   }
 })
 
