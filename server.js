@@ -22,7 +22,11 @@ MongoClient.connect(mongoUrl, function(err, conn) {
 function summary(callback) {
   return Bacon.fromNodeCallback(
     leuat, "aggregate", [{$group: { _id:"$team", leukoja: { $sum: "$leukoja" }  }}]
-  )
+  ).map(function(list) {
+    return list
+      .sort(function(a,b) { return b.leukoja-a.leukoja })
+      .map(function(a) { return { team: a._id, leukoja: a.leukoja }})
+  })
 }
 
 io.on('connection', function(socket){

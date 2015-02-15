@@ -88,7 +88,7 @@ leuatE
   .onValue(function(list) {
     var $list = list.map(function(leuka) {
       return $("<li>")
-        .append($("<span>").addClass("team").text(leuka._id))
+        .append($("<span>").addClass("team").text(leuka.team))
         .append($("<span>").addClass("leukoja").text(leuka.leukoja))
     })
     $("#leuat").html($list)
