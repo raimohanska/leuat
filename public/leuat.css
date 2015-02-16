@@ -8,6 +8,7 @@ input {
   width: 100%;
   border-radius: 6px;
   margin-bottom: 0.2em;
+  text-transform: uppercase;
 }
 #leuka {
   font-weight: bolder;
