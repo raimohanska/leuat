@@ -1,6 +1,29 @@
-body { font-family: Comic Sans Ms, Futura, Arial; }
+html { -webkit-text-size-adjust: 100%; font-size: 32pt; }
+body { font-family: Comic Sans Ms, Futura, Arial; font-size: 3em; }
+h1 { margin-bottom: 0em; text-align: center; font-size: 1.5em; }
+input {
+  line-height: 1.8em;
+  font-size: 0.4em;
+  display: block;
+  width: 100%;
+  border-radius: 6px;
+  margin-bottom: 0.2em;
+}
+#leuka {
+  font-weight: bolder;
+  border-radius: 6px;
+  border: 1px solid #333;
+  color: #fff;
+  width: 80%;
+  margin-left: 10%;
+  margin-right: 10%;
+  font-size: 0.4em;
+  line-height: 1.8em;
+  background: linear-gradient(to bottom, #ffa5f4 0%,#d321b8 49%,#d82ac4 50%,#2860c1 100%);
+}
 ul { padding: 0; }
-li { list-style: none; }
+li { list-style: none; padding: 4px 12px; }
+li:nth-child(2n+1) { background-color: #eee; }
 li .team { display: inline-block; width: 5em; }
 #iso {
 position: absolute;
