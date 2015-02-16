@@ -37,8 +37,8 @@ function storeCookie(field) {
 storeCookie(team)
 storeCookie(vetaja)
 
-var teamP = fieldValue(team)
-var vetajaP = fieldValue(vetaja)
+var teamP = fieldValue(team).map(".toUpperCase")
+var vetajaP = fieldValue(vetaja).map(".toUpperCase")
 var socket = io()
 
 var leukaE = Bacon.fromEvent(document.querySelector("#leuka"), "click")
