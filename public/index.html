@@ -14,7 +14,11 @@
 <script src="Bacon.js"></script>
 <script src="jquery.js"></script>
 <script src="jquery.cookie.js"></script>
+<script src="fastclick.js"></script>
 <script>
+$(function() {
+  Origami.fastclick(document.body);
+});
 Bacon.Observable.prototype.assignField = function(obj, f) {
   this.onValue(function(value) {
     obj[f]=value
