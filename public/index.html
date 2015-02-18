@@ -25,7 +25,6 @@ Bacon.Observable.prototype.assignField = function(obj, f) {
   })
 }
 
-console.log("Veä jo!")
 function fieldValue(field) {
   function getValue() { return field.value }
   return Bacon.fromEvent(field, "input")
@@ -62,7 +61,7 @@ var dataP = Bacon.combineTemplate({ team: teamP, vetaja: vetajaP, leukoja: suori
 flushE
   .map(dataP)
   .onValue(function(data) {
-    console.log(data)
+    console.log("Sinne läks")
     socket.emit("leuka", data)
   })
 
@@ -100,9 +99,13 @@ leuatE
         )
     })
     $("#leuat").html($list)
+    console.log("Kovaa kamaa")
   })
 
-socket.emit("leuat") // request initial status
+  socket.on("connect", function() {
+    console.log("Vedä vedä!")
+    socket.emit("leuat") // request initial status
+  })
 </script>
 </body>
 </html>
