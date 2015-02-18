@@ -23,9 +23,15 @@ input {
   background: linear-gradient(to bottom, #ffa5f4 0%,#d321b8 49%,#d82ac4 50%,#2860c1 100%);
 }
 ul { padding: 0; }
-li { list-style: none; padding: 4px 12px; }
-li:nth-child(2n+1) { background-color: #eee; }
-li .team { display: inline-block; width: 5em; }
+#leuat {
+  border-collapse: collapse;
+  width: 100%; padding: 4px 12px;
+  font-size: 120px;
+}
+.odd { background-color: #eee; }
+.leukoja {
+  text-align: right;
+}
 #iso {
 position: absolute;
 font-size: 4em;

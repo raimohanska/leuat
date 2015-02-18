@@ -9,7 +9,7 @@
   <button id="leuka">LEUKA</button>
 </form>
 <div id="iso"></div>
-<ul id="leuat"></ul>
+<table id="leuat"></table>
 <script src="/socket.io/socket.io.js"></script>
 <script src="Bacon.js"></script>
 <script src="jquery.js"></script>
@@ -54,7 +54,7 @@ var countP = Bacon.update(0,
   [leukaE], function(count) { return count+1 },
   [flushE], function(count) { return 0 }
   )
-  
+
 var suoritetutLeuatE = countP.slidingWindow(2,2).sampledBy(flushE).map(".0")
 
 var dataP = Bacon.combineTemplate({ team: teamP, vetaja: vetajaP, leukoja: suoritetutLeuatE })
@@ -65,7 +65,7 @@ flushE
     console.log(data)
     socket.emit("leuka", data)
   })
-  
+
 var leuatE = Bacon.fromEvent(socket, "leuat")
 
 waitingP = flushE.awaiting(leuatE)
@@ -90,14 +90,18 @@ suoritetutLeuatE
 
 leuatE
   .onValue(function(list) {
-    var $list = list.map(function(leuka) {
-      return $("<li>")
-        .append($("<span>").addClass("team").text(leuka.team))
-        .append($("<span>").addClass("leukoja").text(leuka.leukoja))
+    var $list = list.map(function(leuka, i) {
+      return $("<tr>").addClass('team').toggleClass('odd', (i+1) % 2 == 1)
+        .append(
+          $("<td>").addClass("name").text(leuka.team)
+        )
+        .append(
+          $("<td>").addClass("leukoja").text(leuka.leukoja)
+        )
     })
     $("#leuat").html($list)
   })
-  
+
 socket.emit("leuat") // request initial status
 </script>
 </body>
