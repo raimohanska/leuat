@@ -26,19 +26,12 @@ Bacon.Observable.prototype.assignField = function(obj, f) {
 }
 
 function fieldValue(field) {
-  function getValue() { return field.value }
-  return Bacon.fromEvent(field, "input")
-    .map(getValue)
-    .toProperty(getValue())
-}
-function storeCookie(field) {
   field.value = $.cookie(field.id) || ""
-  fieldValue(field).onValue(function(value) {
-    $.cookie(field.id, value)
-  })
+  var changes = Bacon.fromEvent(field, "input")
+  .map(function() { return field.value })
+  changes.onValue($.cookie, field.id)
+  return changes.toProperty(field.value)
 }
-storeCookie(team)
-storeCookie(vetaja)
 
 var teamP = fieldValue(team).map(".toUpperCase")
 var vetajaP = fieldValue(vetaja).map(".toUpperCase")
