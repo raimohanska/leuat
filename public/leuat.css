@@ -26,7 +26,7 @@ ul { padding: 0; }
 #leuat {
   border-collapse: collapse;
   width: 100%; padding: 4px 12px;
-  font-size: 120px;
+  font-size: 1em;
 }
 .odd { background-color: #eee; }
 .leukoja {
