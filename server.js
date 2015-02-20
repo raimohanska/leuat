@@ -93,6 +93,10 @@ app.get("/leuat/team/:team/:interval/:count", function(req, res) {
   serveStats(multiStats({team: req.params.team}, req.params.interval, req.params.count), res)
 })
 
+app.get("/leuat/all/:interval/:count", function(req, res) {
+  serveStats(multiStats({}, req.params.interval, req.params.count), res)
+})
+
 app.use(express.compress())
 app.use(express.json())
 app.use('/', express.static(__dirname + '/public'))
