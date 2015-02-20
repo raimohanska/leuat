@@ -1,4 +1,5 @@
 #! /usr/bin/env node
+"use strict";
 var express = require('express')
 var port = process.env.PORT || 8666
 var app = express()
@@ -11,7 +12,6 @@ var mongoUrl = process.env["MONGOLAB_URI"] || "mongodb://localhost/leuat"
 var leuat
 var leuatBus = new Bacon.Bus()
 
-console.log("Connecting to mongo", mongoUrl)
 MongoClient.connect(mongoUrl, function(err, conn) {
   if (err) {
     console.log("Failed to connect to mongo", err)
@@ -30,13 +30,45 @@ function summary() {
   })
 }
 
+function statsE(query, start, end) {
+  return Bacon.fromNodeCallback(leuat, "aggregate", { 
+    $match: _.extend({}, query, dateBetweenQuery(start, end))
+  },
+  { $group: { _id : null, sum : { $sum: "$leukoja" } } })
+    .map(function(list) {
+      if (list.length) return list[0].sum
+      return 0    
+    })
+}
+
+function multiStats(query, interval, count) {
+  var statArr = []
+  var diff = 0
+  for (var i = 0; i < count; i++) {
+    statArr.push(statsE(query, diff - interval + 1, diff + 1))
+    diff -= interval
+  }
+  return Bacon.combineTemplate(statArr)
+}
+
+function dateBetweenQuery(start, end) {
+  return { $and: [
+    { date: { $gte: dateStart(start) } },
+    { date: { $lte: dateStart(end) } }
+  ]}
+}
+
+function dateStart(diff) {
+  var d = new Date(new Date().getTime() + 86400000 * diff)
+  d.setHours(0,0,0,0)
+  return d
+}
+
 var statusUpdateE = leuatBus.flatMap(summary)
 
 io.on('connection', function(socket){
   var discoE = Bacon.fromEvent(socket, "disconnect")
-  console.log('User connected')
   socket.on("leuka", function(msg) {
-    console.log("LEUKA, MAIJAI!", msg.team)
     leuat.insert({team: msg.team, leukoja: msg.leukoja, vetaja: msg.vetaja, date: new Date()})
     leuatBus.push()
   })
@@ -45,6 +77,20 @@ io.on('connection', function(socket){
   function send(data) {
     socket.emit("leuat", data)
   }
+})
+
+function serveStats(stats, res) {
+  stats.onValue(function(data) {
+    res.end(JSON.stringify(data))
+  })
+}
+
+app.get("/leuat/vetaja/:vetaja/:interval/:count", function(req, res) {
+  serveStats(multiStats({vetaja: req.params.vetaja}, req.params.interval, req.params.count), res)
+})
+
+app.get("/leuat/team/:team/:interval/:count", function(req, res) {
+  serveStats(multiStats({team: req.params.team}, req.params.interval, req.params.count), res)
 })
 
 app.use(express.compress())
