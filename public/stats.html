@@ -1,0 +1,61 @@
+<html>
+<head>
+  <link rel="stylesheet" href="leuat.css" type="text/css">
+<body>
+<h1>LEUKA STATSIT</h1>
+<canvas id="leukakartta" width="400" height="400"></canvas>
+<script src="/socket.io/socket.io.js"></script>
+<script src="Bacon.js"></script>
+<script src="jquery.js"></script>
+<script src="jquery.cookie.js"></script>
+<script src="fastclick.js"></script>
+<script src="Chart.js"></script>
+<script>
+
+function getQuery() {
+  var path=location.hash.substring(1)
+  var query = !path.length ? "all/1/6" : path
+  console.log(query)
+  return query
+}
+
+
+function getStats(query) {
+  return Bacon.fromPromise($.ajax("/leuat/"+query))
+}
+
+function showStats(stats) {
+  console.log(stats)
+  var ctx = document.getElementById("leukakartta").getContext("2d");
+  var labels = stats.map(function(count, i) {
+    return ""
+  })
+  var data = {
+    labels: labels,
+    datasets: [
+        {
+            label: "My First dataset",
+            fillColor: "rgba(220,220,220,0.2)",
+            strokeColor: "#000000",
+            pointColor: "#000000",
+            pointStrokeColor: "#fff",
+            pointHighlightFill: "#fff",
+            pointHighlightStroke: "rgba(220,220,220,1)",
+            data: stats
+        }
+    ]
+};
+  var myLineChart = new Chart(ctx).Line(data);
+}
+
+Bacon.fromEvent(window, "hashchange")
+  .map(getQuery)
+  .startWith(getQuery())
+  .flatMap(getStats)
+  .map(JSON.parse)
+  .map(".reverse")
+  .onValue(showStats)
+
+</script>
+</body>
+</html>

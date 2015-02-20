@@ -15,7 +15,8 @@
         "mongodb": "~2.0",
         "baconjs": "~0.7",
         "lodash": "~3",
-        "jquery.cookie": "1.4.1"
+        "jquery.cookie": "1.4.1",
+        "chart.js": "^1"
     },
     "engines": {
         "node": "~0.10.0"
