@@ -10,7 +10,10 @@
 <script src="jquery.cookie.js"></script>
 <script src="fastclick.js"></script>
 <script src="Chart.js"></script>
+<script src="ramda.js"></script>
 <script>
+
+var colors = ["black", "red", "blue", "green", "magenta", "cyan"]
 
 function getQuery() {
   var path=location.hash.substring(1)
@@ -24,35 +27,45 @@ function getStats(query) {
   return Bacon.fromPromise($.ajax("/leuat/"+query))
 }
 
-function showStats(allStats) {
+function makeCumulative(arr) {
+  return R.scan(function(a,b) { return a+b })(0)(arr)
+}
+
+function showStats(allStats, cumulative) {
   console.log(allStats)
-  var ctx = document.getElementById("leukakartta").getContext("2d");
+  var canvas = document.getElementById("leukakartta")
+  canvas.width = document.body.offsetWidth * 0.9
+  canvas.height = document.body.offsetWidth * 0.6
+  var ctx = canvas.getContext("2d");
   var groupIds = []
   for (var groupId in allStats) { groupIds.push(groupId) }
-  var labels = allStats[groupIds[0]].map(function(data) { return "" })
+  var labels = allStats[groupIds[0]].map(function(data) { return "" }).concat(["", ""])
+  var i = 0
   var data = {
     labels: labels,
     datasets: groupIds.map(function(groupId) {
+        var color = colors[i++]
         return {
             label: groupId,
+            strokeColor:color,
             fillColor: "rgba(220,220,220,0.2)",
-            strokeColor: "#000000",
-            pointColor: "#000000",
-            pointStrokeColor: "#fff",
-            pointHighlightFill: "#fff",
-            pointHighlightStroke: "rgba(220,220,220,1)",
-            data: allStats[groupId]
+            data: cumulative ? makeCumulative(allStats[groupId]) : allStats[groupId]
         }})
   }
   var myLineChart = new Chart(ctx).Line(data)
 }
 
-Bacon.fromEvent(window, "hashchange")
+var statsP = Bacon.fromEvent(window, "hashchange")
   .map(getQuery)
   .startWith(getQuery())
   .flatMap(getStats)
   .map(JSON.parse)
-  .onValue(showStats)
+  .toProperty()
+
+var checkbox = document.getElementById("cumulative")
+var cumulativeP = Bacon.constant(true)
+
+Bacon.onValues(statsP, cumulativeP, showStats)
 
 </script>
 </body>
