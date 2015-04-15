@@ -30,25 +30,41 @@ function summary() {
   })
 }
 
-function statsE(query, start, end) {
+function statsE(queryParam, groups, start, end) {
+  var groupBy = null
+  var query = {}
+  if (queryParam) {
+    groupBy = "$" + queryParam
+    query[queryParam] =  {$in: groups}
+  }
   return Bacon.fromNodeCallback(leuat, "aggregate", { 
     $match: _.extend({}, query, dateBetweenQuery(start, end))
   },
-  { $group: { _id : null, sum : { $sum: "$leukoja" } } })
-    .map(function(list) {
-      if (list.length) return list[0].sum
-      return 0    
-    })
+  { $group: { _id : groupBy, sum : { $sum: "$leukoja" } } })
 }
 
-function multiStats(query, interval, count) {
+function multiStats(queryParam, groups, interval, count) {
   var statArr = []
   var diff = 0
   for (var i = 0; i < count; i++) {
-    statArr.push(statsE(query, diff - interval + 1, diff + 1))
+    statArr.push(statsE(queryParam, groups, diff - interval + 1, diff + 1))
     diff -= interval
   }
+  statArr = statArr.reverse()
   return Bacon.combineTemplate(statArr)
+    .map(function(statsByDate) {
+      var groupedResults = {}
+      statsByDate.forEach(function(dayStats) {
+        var groupedDayStats = {}
+        dayStats.forEach(function(groupStatsForDay) {
+          groupedDayStats[groupStatsForDay._id] = groupStatsForDay.sum
+        })
+        groups.forEach(function(groupId) {
+          groupedResults[groupId] = (groupedResults[groupId] || []).concat(groupedDayStats[groupId] || 0)
+        })
+      })
+      return groupedResults
+    })
 }
 
 function dateBetweenQuery(start, end) {
@@ -86,15 +102,15 @@ function serveStats(stats, res) {
 }
 
 app.get("/leuat/vetaja/:vetaja/:interval/:count", function(req, res) {
-  serveStats(multiStats({vetaja: req.params.vetaja}, req.params.interval, req.params.count), res)
+  serveStats(multiStats("vetaja", req.params.vetaja.split(","), req.params.interval, req.params.count), res)
 })
 
 app.get("/leuat/team/:team/:interval/:count", function(req, res) {
-  serveStats(multiStats({team: req.params.team}, req.params.interval, req.params.count), res)
+  serveStats(multiStats("team", req.params.team.split(","), req.params.interval, req.params.count), res)
 })
 
 app.get("/leuat/all/:interval/:count", function(req, res) {
-  serveStats(multiStats({}, req.params.interval, req.params.count), res)
+  serveStats(multiStats(null, [null], req.params.interval, req.params.count), res)
 })
 
 app.use(express.compress())

@@ -24,28 +24,27 @@ function getStats(query) {
   return Bacon.fromPromise($.ajax("/leuat/"+query))
 }
 
-function showStats(stats) {
-  console.log(stats)
+function showStats(allStats) {
+  console.log(allStats)
   var ctx = document.getElementById("leukakartta").getContext("2d");
-  var labels = stats.map(function(count, i) {
-    return ""
-  })
+  var groupIds = []
+  for (var groupId in allStats) { groupIds.push(groupId) }
+  var labels = allStats[groupIds[0]].map(function(data) { return "" })
   var data = {
     labels: labels,
-    datasets: [
-        {
-            label: "My First dataset",
+    datasets: groupIds.map(function(groupId) {
+        return {
+            label: groupId,
             fillColor: "rgba(220,220,220,0.2)",
             strokeColor: "#000000",
             pointColor: "#000000",
             pointStrokeColor: "#fff",
             pointHighlightFill: "#fff",
             pointHighlightStroke: "rgba(220,220,220,1)",
-            data: stats
-        }
-    ]
-};
-  var myLineChart = new Chart(ctx).Line(data);
+            data: allStats[groupId]
+        }})
+  }
+  var myLineChart = new Chart(ctx).Line(data)
 }
 
 Bacon.fromEvent(window, "hashchange")
@@ -53,7 +52,6 @@ Bacon.fromEvent(window, "hashchange")
   .startWith(getQuery())
   .flatMap(getStats)
   .map(JSON.parse)
-  .map(".reverse")
   .onValue(showStats)
 
 </script>
