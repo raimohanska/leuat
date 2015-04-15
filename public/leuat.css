@@ -45,3 +45,26 @@ transition: all 1s;
 #iso.pow {
 opacity: 0;
 }
+#scrollingText {
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+  top: 0;
+  margin: 0;
+  pointer-events:none;
+}
+#scrollingText li {
+  font-size: 0.8em;
+  text-align: center;
+  position: absolute;
+  width: 100%;
+  top: 50%;
+  color: red;
+  opacity: 1;
+}
+#scrollingText li.live {
+  top: 10%;
+  transition: all 2s ease-in;
+  opacity: 0;
+  font-size: 1.0em;
+}
