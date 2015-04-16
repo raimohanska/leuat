@@ -48,11 +48,14 @@ function showStats(allStats, cumulative) {
         return {
             label: groupId,
             strokeColor:color,
+            pointHighlightFill: color,
             fillColor: "rgba(220,220,220,0.2)",
             data: cumulative ? makeCumulative(allStats[groupId]) : allStats[groupId]
         }})
   }
-  var myLineChart = new Chart(ctx).Line(data)
+  var myLineChart = new Chart(ctx).Line(data, {
+    multiTooltipTemplate: "<%= datasetLabel %> - <%= value %>"
+  })
 }
 
 var statsP = Bacon.fromEvent(window, "hashchange")
