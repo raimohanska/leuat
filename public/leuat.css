@@ -57,11 +57,11 @@ ul { padding: 0; }
 }
 .leukoja {
   text-align: right;
-  width: 20%;
-  float: left;
+  float: right;
+  min-width: 30%;
 }
 .name {
-  width: 80%;
+  max-width: 70%;
   overflow-x: hidden;
   text-overflow: ellipsis;
   text-wrap: none;
