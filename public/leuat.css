@@ -1,14 +1,31 @@
-html { -webkit-text-size-adjust: 100%; font-size: 32pt; }
+/*http://stackoverflow.com/a/13068082*/
+* {
+  -webkit-touch-callout:none;
+  -webkit-user-select:none;
+  -moz-user-select:none;
+  -ms-user-select:none;
+  user-select:none;
+}
+input {
+  -webkit-touch-callout:default;
+  -webkit-user-select:text;
+  -moz-user-select:text;
+  -ms-user-select:text;
+  user-select:text;
+}
+
 body { font-family: Comic Sans Ms, Futura, Arial; font-size: 3em; }
 h1 { margin-bottom: 0em; text-align: center; font-size: 1.5em; }
 input {
   line-height: 1.8em;
-  font-size: 0.4em;
+  font-size: 0.6em;
+  padding: 0.2em;
   display: block;
   width: 100%;
   border-radius: 6px;
   margin-bottom: 0.2em;
   text-transform: uppercase;
+  border: 1px inset #999;
 }
 #leuka {
   font-weight: bolder;
@@ -18,19 +35,44 @@ input {
   width: 80%;
   margin-left: 10%;
   margin-right: 10%;
-  font-size: 0.4em;
-  line-height: 1.8em;
+  font-size: 0.5em;
+  line-height: 2em;
   background: linear-gradient(to bottom, #ffa5f4 0%,#d321b8 49%,#d82ac4 50%,#2860c1 100%);
 }
 ul { padding: 0; }
 #leuat {
   border-collapse: collapse;
-  width: 100%; padding: 4px 12px;
-  font-size: 1em;
+  width: 100%;
+  user-select: none;
 }
-.odd { background-color: #eee; }
+@media only screen and (max-width: 480px) {
+  #leuat {
+    font-size: 100%;
+  }
+}
+@media only screen and (min-width: 480px) {
+  #leuat {
+    font-size: 200%;
+  }
+}
 .leukoja {
   text-align: right;
+  width: 20%;
+  float: left;
+}
+.name {
+  width: 80%;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  text-wrap: none;
+  float: left;
+}
+.team {
+  float: left;
+  width: 100%;
+}
+.team:nth-child(odd) {
+   background-color: #eee;
 }
 #iso {
 position: absolute;
