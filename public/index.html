@@ -1,6 +1,12 @@
 <html>
 <head>
   <link rel="stylesheet" href="leuat.css" type="text/css">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="white">
+  <meta name="viewport" content="width=device-width,height=device-height,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
+  <title>LEUAT</title>
+</head>
 <body>
 <h1>LEUAT</h1>
 <form method="post" action="/leuka">
@@ -9,7 +15,7 @@
   <button id="leuka">LEUKA</button>
 </form>
 <div id="iso"></div>
-<table id="leuat"></table>
+<div id="leuat"></div>
 <script src="/socket.io/socket.io.js"></script>
 <script src="Bacon.js"></script>
 <script src="jquery.js"></script>
@@ -117,12 +123,12 @@ leuatE
 leuatE
   .onValue(function(list) {
     var $list = list.map(function(leuka, i) {
-      return $("<tr>").addClass('team').toggleClass('odd', (i+1) % 2 == 1)
+      return $("<div>").addClass('team')
         .append(
-          $("<td>").addClass("name").text(leuka.team)
+          $("<div>").addClass("name").text(leuka.team)
         )
         .append(
-          $("<td>").addClass("leukoja").text(leuka.leukoja)
+          $("<div>").addClass("leukoja").text(leuka.leukoja)
         )
     })
     $("#leuat").html($list)
