@@ -14,7 +14,11 @@ input {
   user-select:text;
 }
 
-body { font-family: Comic Sans Ms, ChalkboardSE-Regular, Futura, Arial; font-size: 3em; }
+body {
+  font-family: Comic Sans Ms, ChalkboardSE-Regular, Futura, Arial;
+  font-size: 3em;
+  margin: 0;
+}
 h1 { margin-bottom: 0em; text-align: center; font-size: 1.5em; }
 input {
   line-height: 1.8em;
@@ -60,6 +64,10 @@ ul { padding: 0; }
   float: right;
   min-width: 30%;
 }
+form {
+  padding: 0 0.3em;
+  box-sizing: border-box;
+}
 .name {
   max-width: 70%;
   overflow-x: hidden;
@@ -70,6 +78,8 @@ ul { padding: 0; }
 .team {
   float: left;
   width: 100%;
+  padding: 0 0.3em;
+  box-sizing: border-box;
 }
 .team:nth-child(odd) {
    background-color: #eee;
