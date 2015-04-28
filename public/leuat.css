@@ -164,6 +164,7 @@ opacity: 0;
   top: 50%;
   color: red;
   opacity: 1;
+  list-style: none;
 }
 #scrollingText li.live {
   top: 10%;
