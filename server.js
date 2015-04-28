@@ -21,12 +21,33 @@ MongoClient.connect(mongoUrl, function(err, conn) {
 })
 
 function summary() {
+  var sevenDays = 7 * 24 * 60 * 60 * 1000;
   return Bacon.fromNodeCallback(
-    leuat, "aggregate", [{$group: { _id:"$team", leukoja: { $sum: "$leukoja" }  }}]
+    leuat, "aggregate", [{
+          $project: {
+            _id: 0,
+            team: 1,
+            leukoja: 1,
+            last: {$cond: [
+              {$gt: ["$date", new Date(new Date().getTime() - sevenDays)]},
+              "$leukoja",
+              0
+            ]}
+          }
+        }, {
+          $group: {
+            _id: "$team",
+            leukoja: {$sum: "$leukoja"},
+            muutos: {$sum: "$last"}
+          }
+        }]
   ).map(function(list) {
     return list
-      .sort(function(a,b) { return b.leukoja-a.leukoja })
-      .map(function(a) { return { team: a._id, leukoja: a.leukoja }})
+      .sort(function(a,b) {
+        var muutos = b.muutos - a.muutos;
+        return muutos != 0 ? muutos : b.leukoja-a.leukoja;
+      })
+      .map(function(a) { return { team: a._id, leukoja: a.leukoja, muutos: a.muutos }})
   })
 }
 

@@ -67,6 +67,10 @@ ul { padding: 0; }
   }
 }
 .leukoja {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  right: 0.3em;
+  position: absolute;
   text-align: right;
   float: right;
   min-width: 30%;
@@ -83,11 +87,51 @@ form {
   float: left;
 }
 .team {
+  perspective: 1000;
+  position: relative;
   float: left;
   width: 100%;
   padding: 0 0.3em;
   box-sizing: border-box;
 }
+
+.score-toggle {
+  transition: 0.5s;
+  transform-style: preserve-3d;
+}
+
+.muutos {
+  color: #999;
+  transform: rotateX(180deg);
+  -webkit-transform: rotateX(180deg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  right: 0.3em;
+  position: absolute;
+  text-align: right;
+  float: right;
+  min-width: 30%;
+}
+
+.muutos.active {
+  color: #090;
+}
+
+.team .score-toggle {
+  transform-origin: 100% 50%;
+  -webkit-transform-origin: 100% 50%;
+}
+
+body.show-muutos .leukoja.score-toggle {
+  transform: rotateX(-180deg);
+  -webkit-transform: rotateX(-180deg);
+}
+
+body.show-muutos .muutos.score-toggle {
+  transform: rotateX(0deg);
+  -webkit-transform: rotateX(0deg);
+}
+
 .team:nth-child(odd) {
    background-color: #eee;
 }

@@ -25,6 +25,10 @@
 $(function() {
   Origami.fastclick(document.body);
 });
+
+// Flip cumulative and recent results
+setInterval(function() { $('body').toggleClass('show-muutos'); }, 3000);
+
 Bacon.Observable.prototype.assignField = function(obj, f) {
   this.onValue(function(value) {
     obj[f]=value
@@ -123,12 +127,16 @@ leuatE
 leuatE
   .onValue(function(list) {
     var $list = list.map(function(leuka, i) {
+      var isActive = leuka.muutos > 0;
       return $("<div>").addClass('team')
         .append(
           $("<div>").addClass("name").text(leuka.team)
         )
         .append(
-          $("<div>").addClass("leukoja").text(leuka.leukoja)
+          $("<div>").addClass("leukoja score-toggle").text(leuka.leukoja)
+        )
+        .append(
+          $("<div>").addClass("muutos score-toggle").text((isActive ? "+" : "") + leuka.muutos).toggleClass('active', isActive)
         )
     })
     $("#leuat").html($list)
