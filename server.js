@@ -121,7 +121,7 @@ function serveStats(stats, res) {
     res.end(JSON.stringify(data))
   })
 }
-
+/*
 app.get("/leuat/vetaja/:vetaja/:interval/:count", function(req, res) {
   serveStats(multiStats("vetaja", req.params.vetaja.split(","), req.params.interval, req.params.count), res)
 })
@@ -133,6 +133,7 @@ app.get("/leuat/team/:team/:interval/:count", function(req, res) {
 app.get("/leuat/all/:interval/:count", function(req, res) {
   serveStats(multiStats(null, [null], req.params.interval, req.params.count), res)
 })
+*/
 
 app.use(express.compress())
 app.use(express.json())
