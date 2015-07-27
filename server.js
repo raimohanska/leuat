@@ -133,7 +133,6 @@ connE.onValue(function(conn) {
       res.end(JSON.stringify(data))
     })
   }
-  /*
   app.get("/leuat/vetaja/:vetaja/:interval/:count", function(req, res) {
     serveStats(multiStats("vetaja", req.params.vetaja.split(","), req.params.interval, req.params.count), res)
   })
@@ -145,7 +144,6 @@ connE.onValue(function(conn) {
   app.get("/leuat/all/:interval/:count", function(req, res) {
     serveStats(multiStats(null, [null], req.params.interval, req.params.count), res)
   })
-  */
 
   app.use(express.compress())
   app.use(express.json())
