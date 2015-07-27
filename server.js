@@ -21,6 +21,7 @@ MongoClient.connect(mongoUrl, function(err, conn) {
 })
 
 function summary() {
+  console.log("calculate summary")
   var sevenDays = 7 * 24 * 60 * 60 * 1000;
   return Bacon.fromNodeCallback(
     leuat, "aggregate", [{
@@ -104,14 +105,22 @@ function dateStart(diff) {
 var statusUpdateE = leuatBus.flatMap(summary)
 
 io.on('connection', function(socket){
+  console.log("socket connected")
   var discoE = Bacon.fromEvent(socket, "disconnect")
   socket.on("leuka", function(msg) {
     leuat.insert({team: msg.team, leukoja: msg.leukoja, vetaja: msg.vetaja, date: new Date()})
     leuatBus.push()
   })
-  Bacon.fromEvent(socket, "leuat").flatMap(summary).onValue(send)
+  Bacon.fromEvent(socket, "leuat")
+    .takeUntil(discoE)
+    .map()
+    .log("leuat requested")
+    .flatMap(summary)
+    .onValue(send)
   statusUpdateE.takeUntil(discoE).onValue(send)
+  discoE.log("socket disconnect")
   function send(data) {
+    console.log("sending leuat")
     socket.emit("leuat", data)
   }
 })
