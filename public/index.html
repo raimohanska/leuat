@@ -39,7 +39,7 @@ function fieldValue(field) {
   field.value = $.cookie(field.id) || ""
   var changes = Bacon.fromEvent(field, "input")
   .map(function() { return field.value })
-  changes.onValue($.cookie, field.id)
+  changes.onValue($.cookie, field.id, { expires: 365 })
   return changes.toProperty(field.value)
 }
 
