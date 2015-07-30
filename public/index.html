@@ -9,9 +9,9 @@
 </head>
 <body>
 <h1>LEUAT</h1>
-<form method="post" action="/leuka">
-  <input name="team" id="team" placeholder="LEUKA TIIMI NIMI">
-  <input name="vetaja" id="vetaja" placeholder="VETÄJÄN NIMI">
+<form id="veto" method="post" action="/leuka">
+  <label>Tiimi<input name="team" id="team" placeholder="LEUKA TIIMI NIMI"></label>
+  <label>Vetäjä<input name="vetaja" id="vetaja" placeholder="VETÄJÄN NIMI"></label>
   <button id="leuka">LEUKA!</button>
 </form>
 <div id="iso"></div>
@@ -147,6 +147,10 @@ leuatE
     console.log("Vedä vedä!")
     socket.emit("leuat") // request initial status
   })
+
+if(decodeURIComponent(window.location.search.substring(1)).match("radiaattori=true")) {
+  $('#veto').hide()
+}
 </script>
 <ul id="scrollingText"></ul>
 </body>
