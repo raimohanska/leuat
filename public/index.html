@@ -126,21 +126,37 @@ leuatE
       })
   })
 
+function sum(list) { 
+  var s = 0
+  list.forEach(function(x) { s += x })
+  return s
+}
+
+function rivi(klass, leuka) {
+  var isActive = leuka.muutos > 0;
+  return $("<div>").addClass(klass)
+    .append(
+      $("<div>").addClass("name").text(leuka.team)
+    )
+    .append(
+      $("<div>").addClass("leukoja score-toggle").text(leuka.leukoja)
+    )
+    .append(
+      $("<div>").addClass("muutos score-toggle").text((isActive ? "+" : "") + leuka.muutos).toggleClass('active', isActive)
+    )
+}
+
 leuatE
   .onValue(function(list) {
+    leukoja = sum(list.map(function(x) { return x.leukoja }))
+    muutos = sum(list.map(function(x) { return x.muutos }))
     var $list = list.map(function(leuka, i) {
       var isActive = leuka.muutos > 0;
-      return $("<div>").addClass('team')
-        .append(
-          $("<div>").addClass("name").text(leuka.team)
-        )
-        .append(
-          $("<div>").addClass("leukoja score-toggle").text(leuka.leukoja)
-        )
-        .append(
-          $("<div>").addClass("muutos score-toggle").text((isActive ? "+" : "") + leuka.muutos).toggleClass('active', isActive)
-        )
+      return rivi("team", leuka)
     })
+    $list = [
+      rivi("total", { team: "TOTAL", leukoja: leukoja, muutos: muutos })
+    ].concat($list)
     $("#leuat").html($list)
     console.log("Kovaa kamaa")
   })
