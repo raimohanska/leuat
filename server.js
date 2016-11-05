@@ -21,36 +21,38 @@ connE.onValue(function(conn) {
   console.log("Connected to MongoDB")
 
   leuat = conn.collection("leuat")
-  function summary() {
-    console.log("calculate summary")
-    var sevenDays = 7 * 24 * 60 * 60 * 1000;
-    return Bacon.fromNodeCallback(
-      leuat, "aggregate", [{
-            $project: {
-              _id: 0,
-              team: 1,
-              leukoja: 1,
-              last: {$cond: [
-                {$gt: ["$date", new Date(new Date().getTime() - sevenDays)]},
-                "$leukoja",
-                0
-              ]}
-            }
-          }, {
-            $group: {
-              _id: "$team",
-              leukoja: {$sum: "$leukoja"},
-              muutos: {$sum: "$last"}
-            }
-          }]
-    ).map(function(list) {
-      return list
-        .sort(function(a,b) {
-          var muutos = b.muutos - a.muutos;
-          return muutos != 0 ? muutos : b.leukoja-a.leukoja;
-        })
-        .map(function(a) { return { team: a._id, leukoja: a.leukoja, muutos: a.muutos }})
-    })
+  function summary(groupBy) {
+    return function() {
+      console.log("calculate summary")
+      var sevenDays = 7 * 24 * 60 * 60 * 1000;
+      return Bacon.fromNodeCallback(
+        leuat, "aggregate", [{
+              $project: {
+                _id: 0,
+                [groupBy]: 1,
+                leukoja: 1,
+                last: {$cond: [
+                  {$gt: ["$date", new Date(new Date().getTime() - sevenDays)]},
+                  "$leukoja",
+                  0
+                ]}
+              }
+            }, {
+              $group: {
+                _id: "$" + groupBy,
+                leukoja: {$sum: "$leukoja"},
+                muutos: {$sum: "$last"}
+              }
+            }]
+      ).map(function(list) {
+        return list
+          .sort(function(a,b) {
+            var muutos = b.muutos - a.muutos;
+            return muutos != 0 ? muutos : b.leukoja-a.leukoja;
+          })
+          .map(function(a) { return { [groupBy]: a._id, leukoja: a.leukoja, muutos: a.muutos }})
+      })
+    }
   }
 
   function statsE(queryParam, groups, start, end) {
@@ -103,8 +105,8 @@ connE.onValue(function(conn) {
     return d
   }
 
-  var statusUpdateE = leuatBus.flatMap(summary)
-  var currentSummary = summary().concat(statusUpdateE).toProperty()
+  var statusUpdateE = leuatBus.flatMap(summary("team"))
+  var currentSummary = summary("team")().concat(statusUpdateE).toProperty()
   currentSummary.map("summary updated").log()
 
   io.on('connection', function(socket){
