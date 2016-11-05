@@ -16,6 +16,7 @@
 </form>
 <div id="iso"></div>
 <div id="leuat"></div>
+<a href="#" id="toggle">Näytä vetäjät</a>
 <script src="/socket.io/socket.io.js"></script>
 <script src="Bacon.js"></script>
 <script src="jquery.js"></script>
@@ -146,6 +147,12 @@ function rivi(klass, leuka) {
     )
 }
 
+toggleE = Bacon.fromEvent(document.querySelector("#toggle"), "click").doAction(".preventDefault")
+groupByP = Bacon.update(
+  "team",
+  toggleE, function(prev) { return prev == "team" ? "vetaja" : "team" }
+).log("groupBy")
+
 leuatE
   .onValue(function(list) {
     leukoja = sum(list.map(function(x) { return x.leukoja }))
@@ -161,9 +168,11 @@ leuatE
     console.log("Kovaa kamaa")
   })
 
-  socket.on("connect", function() {
+  var connectE = Bacon.fromEvent(socket, "connect")
+
+  connectE.merge(groupByP.changes()).map(groupByP).onValue(function(groupBy) {
     console.log("Vedä vedä!")
-    socket.emit("leuat", "team") // request data
+    socket.emit("leuat", groupBy) // request data
   })
 
 if(decodeURIComponent(window.location.search.substring(1)).match("radiaattori=true")) {
