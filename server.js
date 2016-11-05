@@ -50,7 +50,7 @@ connE.onValue(function(conn) {
             var muutos = b.muutos - a.muutos;
             return muutos != 0 ? muutos : b.leukoja-a.leukoja;
           })
-          .map(function(a) { return { [groupBy]: a._id, leukoja: a.leukoja, muutos: a.muutos }})
+          .map(function(a) { return { name: a._id, leukoja: a.leukoja, muutos: a.muutos }})
       })
     }
   }
@@ -105,9 +105,15 @@ connE.onValue(function(conn) {
     return d
   }
 
-  var statusUpdateE = leuatBus.flatMap(summary("team"))
-  var currentSummary = summary("team")().concat(statusUpdateE).toProperty()
-  currentSummary.map("summary updated").log()
+  function summaryP(groupBy) {
+    var statusUpdateE = leuatBus.flatMap(summary(groupBy))
+    return summary(groupBy)().concat(statusUpdateE).toProperty()
+  }
+
+  var currentSummary = {
+    team: summaryP("team"),
+    vetaja: summaryP("vetaja")
+  }
 
   io.on('connection', function(socket){
     console.log("socket connected")
@@ -118,11 +124,9 @@ connE.onValue(function(conn) {
     })
     Bacon.fromEvent(socket, "leuat")
       .takeUntil(discoE)
-      .map("leuat requested")
-      .log()
-      .flatMap(currentSummary.take(1))
+      .doLog("request by")
+      .flatMapLatest(function(groupBy) { return currentSummary[groupBy] })
       .onValue(send)
-    statusUpdateE.takeUntil(discoE).onValue(send)
     discoE.log("socket disconnect")
     function send(data) {
       console.log("sending leuat")

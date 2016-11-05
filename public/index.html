@@ -95,11 +95,11 @@ suoritetutLeuatE
 leuatE
   .diff([], function(prev, current) {
     var map = prev.reduce(function(agg, p) {
-      agg[p.team] = p.leukoja
+      agg[p.name] = p.leukoja
       return agg
     }, {})
     return current.reduce(function(agg, c) {
-      agg[c.team] = agg[c.team] ? c.leukoja - agg[c.team] : c.leukoja
+      agg[c.name] = agg[c.name] ? c.leukoja - agg[c.name] : c.leukoja
       return agg
     }, map)
   })
@@ -107,11 +107,11 @@ leuatE
   .onValue(function(leukaDiff) {
     var $ul = $("#scrollingText")
     Object.keys(leukaDiff)
-      .map(function(team) { return {team: team, count: leukaDiff[team]} })
+      .map(function(name) { return {name: name, count: leukaDiff[name]} })
       .filter(function(leuka) { return leuka.count > 0; })
       .forEach(function(leuka, idx) {
         if (leuka.count > 0) {
-          var $li = $('<li>' + leuka.team + ' +' + leuka.count + '</li>')
+          var $li = $('<li>' + leuka.name + ' +' + leuka.count + '</li>')
           $li.one("transitionend", function() {
             $li.remove()
           })
@@ -136,7 +136,7 @@ function rivi(klass, leuka) {
   var isActive = leuka.muutos > 0;
   return $("<div>").addClass(klass)
     .append(
-      $("<div>").addClass("name").text(leuka.team)
+      $("<div>").addClass("name").text(leuka.name)
     )
     .append(
       $("<div>").addClass("leukoja score-toggle").text(leuka.leukoja)
@@ -155,7 +155,7 @@ leuatE
       return rivi("team", leuka)
     })
     $list = [
-      rivi("total", { team: "TOTAL", leukoja: leukoja, muutos: muutos })
+      rivi("total", { name: "TOTAL", leukoja: leukoja, muutos: muutos })
     ].concat($list)
     $("#leuat").html($list)
     console.log("Kovaa kamaa")
@@ -163,7 +163,7 @@ leuatE
 
   socket.on("connect", function() {
     console.log("Vedä vedä!")
-    socket.emit("leuat") // request initial status
+    socket.emit("leuat", "team") // request data
   })
 
 if(decodeURIComponent(window.location.search.substring(1)).match("radiaattori=true")) {
