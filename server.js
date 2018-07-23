@@ -126,6 +126,7 @@ connE.onValue(function(conn) {
       .takeUntil(discoE)
       .doLog("request by")
       .flatMapLatest(function(groupBy) { return currentSummary[groupBy] })
+      .doError("Error from MongoDB")
       .onValue(send)
     discoE.log("socket disconnect")
     function send(data) {
