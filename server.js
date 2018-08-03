@@ -20,31 +20,36 @@ connE.onError(function(err) {
 connE.onValue(function(conn) {
   console.log("Connected to MongoDB")
 
-  leuat = conn.collection("leuat")
+  leuat = conn.db().collection("leuat")
   function summary(groupBy) {
     return function() {
       console.log("calculate summary")
-      var sevenDays = 7 * 24 * 60 * 60 * 1000;
+      let spec = [
+        {
+          $project: {
+            _id: 0,
+            [groupBy]: 1,
+            leukoja: 1,
+            last: {$cond: [
+              {$gt: ["$date", new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000)]},
+              "$leukoja",
+              0
+            ]}
+          }
+        },
+        {
+          $group: {
+            _id: "$" + groupBy,
+            leukoja: {$sum: "$leukoja"},
+            muutos: {$sum: "$last"}
+          }
+        }
+      ];
       return Bacon.fromNodeCallback(
-        leuat, "aggregate", [{
-              $project: {
-                _id: 0,
-                [groupBy]: 1,
-                leukoja: 1,
-                last: {$cond: [
-                  {$gt: ["$date", new Date(new Date().getTime() - sevenDays)]},
-                  "$leukoja",
-                  0
-                ]}
-              }
-            }, {
-              $group: {
-                _id: "$" + groupBy,
-                leukoja: {$sum: "$leukoja"},
-                muutos: {$sum: "$last"}
-              }
-            }]
-      ).map(function(list) {
+        leuat, "aggregate", spec
+      ).flatMapLatest(function(cursor) {
+        return Bacon.fromPromise(cursor.toArray()) 
+      }).map(function(list) {
         return list
           .sort(function(a,b) {
             var muutos = b.muutos - a.muutos;
@@ -62,7 +67,7 @@ connE.onValue(function(conn) {
       groupBy = "$" + queryParam
       query[queryParam] =  {$in: groups}
     }
-    return Bacon.fromNodeCallback(leuat, "aggregate", { 
+    return Bacon.fromNodeCallback(leuat, "aggregate", {
       $match: _.extend({}, query, dateBetweenQuery(start, end))
     },
     { $group: { _id : groupBy, sum : { $sum: "$leukoja" } } })
@@ -126,7 +131,9 @@ connE.onValue(function(conn) {
       .takeUntil(discoE)
       .doLog("request by")
       .flatMapLatest(function(groupBy) { return currentSummary[groupBy] })
-      .doError("Error from MongoDB")
+      .doError(function (error) {
+        console.error("Error from MongoDB", error)
+      })
       .onValue(send)
     discoE.log("socket disconnect")
     function send(data) {

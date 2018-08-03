@@ -12,7 +12,7 @@
         "grunt-contrib-less": "~0.11",
         "grunt-contrib-requirejs": "~0.4",
         "grunt-shell": "0.6.4",
-        "mongodb": "~2.0",
+        "mongodb": "~3.0",
         "baconjs": "~0.7",
         "lodash": "~3",
         "jquery.cookie": "1.4.1",
