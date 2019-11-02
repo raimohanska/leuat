@@ -14,7 +14,7 @@
         "grunt-shell": "0.6.4",
         "mongodb": "~3.0",
         "baconjs": "~0.7",
-        "lodash": "~3",
+        "lodash": "~4",
         "jquery.cookie": "1.4.1",
         "chart.js": "^1"
     },
