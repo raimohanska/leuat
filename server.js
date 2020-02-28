@@ -149,7 +149,8 @@ connE.onValue(function(conn) {
     })
   }
   app.use(basicAuth({
-      users: { 'leuat': 'jaksaajaksaa' }
+      users: { 'leuat': 'jaksaajaksaa' },
+      challenge: true
   }))
 
   app.get("/leuat/vetaja/:vetaja/:interval/:count", function(req, res) {
