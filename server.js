@@ -7,6 +7,7 @@ var http = require('http').Server(app)
 var io = require('socket.io')(http)
 var Bacon = require("baconjs")
 var _ = require("lodash")
+var basicAuth = require('express-basic-auth')
 var MongoClient = require('mongodb').MongoClient
 var mongoUrl = process.env["MONGOLAB_URI"] || "mongodb://localhost/leuat"
 var leuat
@@ -147,6 +148,10 @@ connE.onValue(function(conn) {
       res.end(JSON.stringify(data))
     })
   }
+  app.use(basicAuth({
+      users: { 'leuat': 'jaksaajaksaa' }
+  }))
+
   app.get("/leuat/vetaja/:vetaja/:interval/:count", function(req, res) {
     serveStats(multiStats("vetaja", req.params.vetaja.split(","), req.params.interval, req.params.count), res)
   })
