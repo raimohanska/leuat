@@ -5,16 +5,16 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="white">
   <meta name="viewport" content="width=device-width,height=device-height,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0">
-  <title>LEUAT</title>
+  <title>CHIN UPS</title>
 </head>
 <body>
-<h1>LEUAT</h1>
+<h1>CHIN UPS</h1>
 <form id="veto" method="post" action="/leuka">
-  <label>Tiimi<input name="team" id="team" placeholder="LEUKA TIIMI NIMI"></label>
-  <label>Vetäjä<input name="vetaja" id="vetaja" placeholder="VETÄJÄN NIMI"></label>
-  <button id="leuka">LEUKA!</button>
+  <label>Team<input name="team" id="team" placeholder="CHINUP TEAM NAME"></label>
+  <label>Puller<input name="vetaja" id="vetaja" placeholder="PULLER NAME"></label>
+  <button id="leuka">CHIN UP!</button>
 </form>
-<a href="#" id="toggle" class="center-link">Näytä vetäjät</a>
+<a href="#" id="toggle" class="center-link">Show pullers</a>
 <div id="iso"></div>
 <div id="leuat"></div>
 <script src="/socket.io/socket.io.js"></script>
@@ -67,7 +67,7 @@ var dataP = Bacon.combineTemplate({ team: teamP, vetaja: vetajaP, leukoja: suori
 flushE
   .map(dataP)
   .onValue(function(data) {
-    console.log("Sinne läks")
+    console.log("Look at it go!")
     socket.emit("leuka", data)
   })
 
@@ -165,13 +165,13 @@ leuatE
       rivi("total", { name: "TOTAL", leukoja: leukoja, muutos: muutos })
     ].concat($list)
     $("#leuat").html($list)
-    console.log("Kovaa kamaa")
+    console.log("Hard stuff!!")
   })
 
   var connectE = Bacon.fromEvent(socket, "connect")
 
   connectE.merge(groupByP.changes()).map(groupByP).onValue(function(groupBy) {
-    console.log("Vedä vedä!")
+    console.log("Pull, pull!")
     socket.emit("leuat", groupBy) // request data
   })
 
